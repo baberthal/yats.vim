@@ -8,7 +8,7 @@ syntax region  typescriptTemplateSubstitution matchgroup=typescriptTemplateSB
   \ contains=@typescriptExpression
   \ contained
 
-syntax region  typescriptString
+syntax region  typescriptString matchgroup=typescriptStringDelimiter
   \ start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/
   \ nextgroup=@typescriptSymbols
   \ skipwhite skipempty

@@ -142,10 +142,11 @@ let typescript_props = 1
 runtime syntax/yats/event.vim
 syntax region  typescriptEventString           contained start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/ contains=typescriptASCII,@events
 
-"Import
+"Import / Export
 syntax region  typescriptImportDef             start=/import/ end=/;\|['"])\?\s*$/ contains=typescriptImport,typescriptString,typescriptBlock keepend
-syntax keyword typescriptImport                contained from as import
-syntax keyword typescriptExport                export module
+syntax keyword typescriptExport                from export module as
+syntax keyword typescriptImport                contained from as import export
+syntax match typescriptGlobExport              "\v\*\sfrom"hs=s+1
 
 syntax region  typescriptBlock                 matchgroup=typescriptBraces start=/\([\^:]\s\*\)\=\zs{/ end=/}/ contains=@htmlJavaScript fold
 
@@ -165,7 +166,7 @@ runtime syntax/basic/class.vim
 runtime syntax/basic/forcomprehension.vim
 
 
-syntax region  typescriptObjectLiteral         contained matchgroup=typescriptBraces start=/{/ end=/}/ contains=@typescriptComments,typescriptObjectLabel,typescriptPropertyName,typescriptMethodDef,typescriptComputedPropertyName,@typescriptValue fold
+syntax region  typescriptObjectLiteral         contained matchgroup=typescriptBraces start=/{/ end=/}/ contains=@typescriptComments,typescriptObjectLabel,typescriptPropertyName,typescriptMethodDef,typescriptComputedPropertyName,typescriptMethod,@typescriptValue fold
 
 " syntax match   typescriptBraces                /[\[\]]/
 " syntax match   typescriptParens                /[()]/
@@ -227,6 +228,7 @@ if exists("did_typescript_hilink")
   HiLink typescriptDocNamedParamType    Type
   HiLink typescriptDocParamName         Type
   HiLink typescriptDocParamType         Type
+  HiLink typescriptStringDelimiter      Delimiter
   HiLink typescriptString               String
   HiLink typescriptTemplate             String
   HiLink typescriptEventString          String
@@ -259,14 +261,15 @@ if exists("did_typescript_hilink")
   HiLink typescriptNumber               Number
   HiLink typescriptBoolean              Boolean
   HiLink typescriptObjectLabel          typescriptLabel
-  HiLink typescriptLabel                Label
+  HiLink typescriptLabel                Constant
   HiLink typescriptPropertyName         Label
-  HiLink typescriptImport               Special
-  HiLink typescriptAmbientDeclaration   Special
-  HiLink typescriptExport               Special
-  HiLink typescriptAmbientExport        Special
-  HiLink typescriptTry                  Special
-  HiLink typescriptExceptions           Special
+  HiLink typescriptImport               PreProc
+  HiLink typescriptAmbientDeclaration   PreProc
+  HiLink typescriptExport               PreProc
+  HiLink typescriptGlobExport           PreProc
+  HiLink typescriptAmbientExport        PreProc
+  HiLink typescriptTry                  PreProc
+  HiLink typescriptExceptions           PreProc
 
   HiLink typescriptMethodName           Function
   HiLink typescriptMethodAccessor       Operator
