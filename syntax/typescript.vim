@@ -146,19 +146,11 @@ let typescript_props = 1
 runtime syntax/yats/event.vim
 syntax region  typescriptEventString           contained start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/ contains=typescriptASCII,@events
 
-<<<<<<< HEAD
 "Import / Export
 syntax region  typescriptImportDef             start=/import/ end=/;\|['"])\?\s*$/ contains=typescriptImport,typescriptString,typescriptBlock keepend
 syntax keyword typescriptExport                from export module as
 syntax keyword typescriptImport                contained from as import export
 syntax match typescriptGlobExport              "\v\*\sfrom"hs=s+1
-=======
-"Import
-syntax region  typescriptExportDef             start=/\<export>/  end=/;\|['"])\?\s*$/ contains=typescriptExport,typescriptString,typescriptBlock keepend
-syntax region  typescriptImportDef             start=/\<import\>/ end=/;\|['"])\?\s*$/ contains=typescriptImport,typescriptString,typescriptBlock keepend
-syntax keyword typescriptImport                contained from as import
-syntax keyword typescriptExport                export module from as
->>>>>>> fixes
 
 syntax region  typescriptBlock                 matchgroup=typescriptBraces start=/\([\^:]\s\*\)\=\zs{/ end=/}/ contains=@htmlJavaScript fold
 
