@@ -1,5 +1,8 @@
+priority -50
+
 snippet /// "import reference" b
-/// <reference path='${0: file}' />
+/// <reference path='${1: file}' />
+$0
 endsnippet
 
 snippet ctor "constructor" b
@@ -34,6 +37,18 @@ endsnippet
 
 snippet fun "function (fun)"
 function ${1:function_name}(${2:argument}) {
+	${VISUAL}$0
+}
+endsnippet
+
+snippet fn "function literal (fn)"
+function (${1:argument}) {
+	${VISUAL}$0
+}
+endsnippet
+
+snippet af "arrow function (af)"
+(${1:argument}) => {
 	${VISUAL}$0
 }
 endsnippet

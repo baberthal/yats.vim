@@ -9,10 +9,12 @@ syntax cluster typescriptNoReserved contains=
   \ typescriptAmbientClassBody,
   \ typescriptMethodDef,
   \ typescriptMethodName,
+  \ typescriptMethodSignature,
   \ @typescriptType,
   \ typescriptCall,
   \ typescriptAmbientModuleBlock,
-  \ typescriptPropertySignature
+  \ typescriptPropertySignature,
+  \ typescriptIndexSignature
 
 "https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Lexical_grammar#Keywords
 syntax keyword typescriptReserved containedin=ALLBUT,@typescriptNoReserved break case catch const continue

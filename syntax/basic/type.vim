@@ -19,7 +19,7 @@ syntax region typescriptTypeArguments matchgroup=typescriptTypeBrackets
   \ contained skipwhite
 
 syntax region typescriptTypeCast matchgroup=typescriptTypeBrackets
-  \ start=/</ end=/>/ skip=/\s*,\s*/
+  \ start=/< \@!/ end=/>/ skip=/\s*,\s*/
   \ contains=@typescriptType
   \ nextgroup=@typescriptExpression
   \ contained skipwhite oneline
@@ -39,7 +39,8 @@ syntax cluster typescriptPrimaryType contains=
   \ typescriptTypeReference,
   \ typescriptObjectType,
   \ typescriptTupleType,
-  \ typescriptTypeQuery
+  \ typescriptTypeQuery,
+  \ typescriptString
 
 syntax region typescriptParenthesizedType matchgroup=typescriptParens
   \ start=/(/ end=/)/
@@ -47,7 +48,7 @@ syntax region typescriptParenthesizedType matchgroup=typescriptParens
   \ nextgroup=typescriptUnionOrArrayType
   \ contained skipwhite skipempty
 
-syntax keyword typescriptPredefinedType any number boolean string void
+syntax keyword typescriptPredefinedType any number boolean string void never undefined null object
   \ nextgroup=typescriptUnionOrArrayType
   \ contained skipwhite skipempty
 
@@ -108,19 +109,25 @@ syntax keyword typescriptConstructorType new
 syntax match typescriptUserDefinedType /[a-zA-Z_$]\w*\s\+is\s\+.*\ze\($\|{\)/
   \ contained
   \ contains=@typescriptType,typescriptUserDefinedKeyword
+  \ nextgroup=typescriptBlock
 
 syntax keyword typescriptUserDefinedKeyword is contained
 
-syntax keyword typescriptTypeQuery typeof
+syntax keyword typescriptTypeQuery typeof keyof
   \ nextgroup=typescriptTypeReference
   \ contained skipwhite skipnl
 
 syntax region typescriptPropertySignature
-  \ start=/[A-Za-z_$'"]\|\d/ end=/;\|$\|:\@=/
-  \ contains=@typescriptCallSignature,typescriptNumber,typescriptString,typescriptOptionalMark
+  \ start=/[A-Za-z_$'"]\|\d/ end=/\k\@!/
+  \ contains=typescriptString,typescriptOptionalMark
   \ nextgroup=typescriptTypeAnnotation
   \ containedin=typescriptTypeMember
-  \ contained skipwhite
+  \ contained skipwhite oneline
+
+syntax match typescriptMethodSignature /[A-Za-z_$]\w*\ze<\|(/
+  \ nextgroup=@typescriptCallSignature
+  \ containedin=typescriptTypeMember
+  \ contained skipwhite oneline
 
 syntax cluster typescriptCallSignature contains=typescriptGenericCall,typescriptCall
 syntax region typescriptGenericCall matchgroup=typescriptTypeBrackets
@@ -135,7 +142,7 @@ syntax region typescriptCall matchgroup=typescriptParens
   \ nextgroup=typescriptTypeAnnotation
   \ contained skipwhite skipnl
 
-syntax match typescriptTypeAnnotation /:/
+syntax match typescriptTypeAnnotation /?\?:/
   \ nextgroup=typescriptUserDefinedType,@typescriptType
   \ contained skipwhite skipnl
 
@@ -157,18 +164,63 @@ syntax keyword typescriptConstructSignature new
   \ nextgroup=@typescriptCallSignature
   \ contained skipwhite
 
+
 syntax region typescriptIndexSignature matchgroup=typescriptBraces
   \ start=/\[/ end=/\]/
-  \ contains=typescriptTypeAnnotation
+  \ contains=typescriptTypeAnnotation,typescriptMappedIn
   \ nextgroup=typescriptTypeAnnotation
   \ contained skipwhite oneline
 
+syntax keyword typescriptMappedIn in
+  \ nextgroup=@typescriptType
+  \ contained skipwhite skipnl skipempty
+
 syntax keyword typescriptAliasKeyword type
-  \ nextgroup=typescriptAliasDeclaration
+  \ nextgroup=typescriptAliasName
   \ skipwhite skipnl skipempty
+
+syntax match typescriptAliasName contained /\k\+/
+  \ nextgroup=typescriptObjectType,typescriptAliasExtends
+  \ skipwhite
+
+syntax match typescriptAliasName contained /\k\+\ze\s*</
+  \ nextgroup=typescriptAliasTypeParameter
+  \ contained
+  \ skipwhite
+
+syntax region typescriptAliasTypeParameter
+  \ start=/</ end=/>/
+  \ contains=typescriptTypeParameter
+  \ nextgroup=typescriptObjectType,typescriptAliasExtends
+  \ contained
+  \ skipwhite
+
+syntax keyword typescriptAliasExtends contained extends
+  \ nextgroup=typescriptAliasHeritage
+  \ skipwhite
+  \ skipnl
+
+syntax match typescriptAliasHeritage contained /\v(\k|\.)+/
+  \ nextgroup=typescriptObjectType,typescriptAliasComma
+  \ skipwhite
+
+syntax match typescriptAliasHeritage contained /\v(\k|\.)+\ze\s*\</
+  \ nextgroup=typescriptAliasTypeArguments
+  \ skipwhite
+
+syntax region typescriptAliasTypeArguments matchgroup=typescriptTypeBrackets
+  \ start=/</ end=/>/ skip=/\s*,\s*/
+  \ contains=@typescriptType
+  \ nextgroup=typescriptObjectType,typescriptAliasComma
+  \ contained
+  \ skipwhite
+
+syntax match typescriptAliasComma /,/ contained
+  \ nextgroup=typescriptAliasHeritage
+  \ skipwhite
+  \ skipnl
 
 syntax region typescriptAliasDeclaration matchgroup=typescriptOpSymbols
   \ start=/ / end=/=/
   \ nextgroup=@typescriptType
-  \ contained skipwhite skipnl skipempty
-
+  \ contains=typescriptConstraint
