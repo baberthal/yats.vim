@@ -109,6 +109,7 @@ syntax keyword typescriptConstructorType new
 syntax match typescriptUserDefinedType /[a-zA-Z_$]\w*\s\+is\s\+.*\ze\($\|{\)/
   \ contained
   \ contains=@typescriptType,typescriptUserDefinedKeyword
+  \ nextgroup=typescriptBlock
 
 syntax keyword typescriptUserDefinedKeyword is contained
 
@@ -163,6 +164,7 @@ syntax keyword typescriptConstructSignature new
   \ nextgroup=@typescriptCallSignature
   \ contained skipwhite
 
+
 syntax region typescriptIndexSignature matchgroup=typescriptBraces
   \ start=/\[/ end=/\]/
   \ contains=typescriptTypeAnnotation,typescriptMappedIn
@@ -174,12 +176,51 @@ syntax keyword typescriptMappedIn in
   \ contained skipwhite skipnl skipempty
 
 syntax keyword typescriptAliasKeyword type
-  \ nextgroup=typescriptAliasDeclaration
+  \ nextgroup=typescriptAliasName
   \ skipwhite skipnl skipempty
+
+syntax match typescriptAliasName contained /\k\+/
+  \ nextgroup=typescriptObjectType,typescriptAliasExtends
+  \ skipwhite
+
+syntax match typescriptAliasName contained /\k\+\ze\s*</
+  \ nextgroup=typescriptAliasTypeParameter
+  \ contained
+  \ skipwhite
+
+syntax region typescriptAliasTypeParameter
+  \ start=/</ end=/>/
+  \ contains=typescriptTypeParameter
+  \ nextgroup=typescriptObjectType,typescriptAliasExtends
+  \ contained
+  \ skipwhite
+
+syntax keyword typescriptAliasExtends contained extends
+  \ nextgroup=typescriptAliasHeritage
+  \ skipwhite
+  \ skipnl
+
+syntax match typescriptAliasHeritage contained /\v(\k|\.)+/
+  \ nextgroup=typescriptObjectType,typescriptAliasComma
+  \ skipwhite
+
+syntax match typescriptAliasHeritage contained /\v(\k|\.)+\ze\s*\</
+  \ nextgroup=typescriptAliasTypeArguments
+  \ skipwhite
+
+syntax region typescriptAliasTypeArguments matchgroup=typescriptTypeBrackets
+  \ start=/</ end=/>/ skip=/\s*,\s*/
+  \ contains=@typescriptType
+  \ nextgroup=typescriptObjectType,typescriptAliasComma
+  \ contained
+  \ skipwhite
+
+syntax match typescriptAliasComma /,/ contained
+  \ nextgroup=typescriptAliasHeritage
+  \ skipwhite
+  \ skipnl
 
 syntax region typescriptAliasDeclaration matchgroup=typescriptOpSymbols
   \ start=/ / end=/=/
   \ nextgroup=@typescriptType
   \ contains=typescriptConstraint
-  \ contained skipwhite skipnl skipempty
-

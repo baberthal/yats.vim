@@ -75,7 +75,7 @@ syntax region   typescriptIdentifierName        start=/\<[^=<>!?+\-*\/%|&,;:. ~@
 syntax cluster typescriptStatement             contains=typescriptBlock,typescriptVariable,@typescriptExpression,typescriptConditional,typescriptRepeat,typescriptBranch,typescriptLabel,typescriptStatementKeyword,typescriptTry,typescriptDebugger
 
 
-syntax cluster typescriptTypes                 contains=typescriptString,typescriptTemplate,typescriptRegexpString,typescriptNumber,typescriptBoolean,typescriptNull,typescriptArray
+syntax cluster typescriptTypes                 contains=typescriptString,typescriptTemplate,typescriptRegexp,typescriptNumber,typescriptBoolean,typescriptNull,typescriptArray
 syntax cluster typescriptValue                 contains=@typescriptTypes,@typescriptExpression,typescriptFuncKeyword,typescriptObjectLiteral,typescriptIdentifier,typescriptIdentifierName,typescriptOperator,@typescriptSymbols
 
 syntax match   typescriptObjectLabel           contained /\(^\|,\|{\)\@<=\s*\zs\k\+\_s*:/he=e-1 nextgroup=@typescriptValue,@typescriptStatement skipwhite skipempty
@@ -87,7 +87,7 @@ syntax region  typescriptComputedPropertyName  contained matchgroup=typescriptPr
 syntax region  typescriptComputedProperty      contained matchgroup=typescriptProperty start=/\(^\|,\|{\)\@<=\s*\zs\[/rs=s+1 end=/]/he=e-1 contains=@typescriptExpression nextgroup=@typescriptValue skipwhite skipempty
 " Value for object, statement for label statement
 
-syntax cluster typescriptStrings               contains=typescriptProp,typescriptString,typescriptTemplate,@typescriptComments,typescriptDocComment,typescriptRegexpString,typescriptPropertyName
+syntax cluster typescriptStrings               contains=typescriptProp,typescriptString,typescriptTemplate,@typescriptComments,typescriptDocComment,typescriptRegexp,typescriptPropertyName
 
 syntax match   typescriptOpSymbols             /[^+\-*/%\^=!<>&|?:]\@<=\(<\|>\|<=\|>=\|==\|!=\|===\|!==\|+\|*\|%\|++\|--\|<<\|>>\|>>>\|&\||\|^\|!\|\~\|&&\|||\|?\|=\|+=\|-=\|*=\|%=\|<<=\|>>=\|>>>=\|&=\||=\|^=\|\/\|\/=\)\ze\_[^+\-*/%\^=!<>&|?:]/ nextgroup=@typescriptExpression skipwhite skipempty
 syntax match   typescriptOpSymbols             /[^+\-*/%\^=!<>&|?:]\@<=\(++\|--\)$/
@@ -147,9 +147,10 @@ runtime syntax/yats/event.vim
 syntax region  typescriptEventString           contained start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/ contains=typescriptASCII,@events
 
 "Import
+syntax region  typescriptExportDef             start=/\<export>/  end=/;\|['"])\?\s*$/ contains=typescriptExport,typescriptString,typescriptBlock keepend
 syntax region  typescriptImportDef             start=/\<import\>/ end=/;\|['"])\?\s*$/ contains=typescriptImport,typescriptString,typescriptBlock keepend
 syntax keyword typescriptImport                contained from as import
-syntax keyword typescriptExport                export module
+syntax keyword typescriptExport                export module from as
 
 syntax region  typescriptBlock                 matchgroup=typescriptBraces start=/\([\^:]\s\*\)\=\zs{/ end=/}/ contains=@htmlJavaScript fold
 
@@ -180,13 +181,33 @@ syntax cluster typescriptSymbols               contains=typescriptOpSymbols,type
 
 " From vim runtime
 " <https://github.com/vim/vim/blob/master/runtime/syntax/javascript.vim#L48>
-syntax region  typescriptRegexpString          start=+/[^/*]+me=e-1 skip=+\\\\\|\\/+ end=+/[gimuy]\{0,5\}\s*$+ end=+/[gimuy]\{0,5\}\s*[;.,)\]}]+me=e-1 oneline
+" syntax region  typescriptRegexp          start=+/[^/*]+me=e-1 skip=+\\\\\|\\/+ end=+/[gimuy]\{0,5\}\s*$+ end=+/[gimuy]\{0,5\}\s*[;.,)\]}]+me=e-1 oneline
+syntax region  typescriptRegexp matchgroup=typescriptRegexpDelimiter start=+/\(/\|*\)\@!+ skip=+\\\\\|\\/+ end=+/[gimuy]*+ contains=@typescriptRegexpSpecial oneline
+
+" From vim-ruby, adapted for JS
+syntax region  typescriptRegexpParens	matchgroup=typescriptRegexpSpecial   start="(\(?:\|?<\=[=!]\|?>\|?<[a-z_]\w*>\|?[imx]*-[imx]*:\=\|\%(?#\)\@!\)" skip="\\)"  end=")"  contained transparent contains=@typescriptRegexpSpecial
+syntax region  typescriptRegexpBrackets	matchgroup=typescriptRegexpCharClass start="\[\^\="								  skip="\\\]" end="\]" contained transparent contains=typescriptStringEscape,typescriptRegexpEscape,typescriptRegexpCharClass oneline
+syntax match   typescriptRegexpCharClass	"\\[DdHhSsWw]"	       contained display
+syntax match   typescriptRegexpCharClass	"\[:\^\=\%(alnum\|alpha\|ascii\|blank\|cntrl\|digit\|graph\|lower\|print\|punct\|space\|upper\|xdigit\):\]" contained
+syntax match   typescriptRegexpEscape	"\\[].*?+^$|\\/(){}[]" contained
+syntax match   typescriptRegexpQuantifier	"[*?+][?+]\="	       contained display
+syntax match   typescriptRegexpQuantifier	"{\d\+\%(,\d*\)\=}?\=" contained display
+syntax match   typescriptRegexpAnchor	"[$^]\|\\[ABbGZz]"     contained display
+syntax match   typescriptRegexpDot	"\."		       contained display
+syntax match   typescriptRegexpSpecial	"|"		       contained display
+syntax match   typescriptRegexpSpecial	"\\[1-9]\d\=\d\@!"     contained display
+syntax match   typescriptRegexpSpecial	"\\k<\%([a-z_]\w*\|-\=\d\+\)\%([+-]\d\+\)\=>" contained display
+syntax match   typescriptRegexpSpecial	"\\k'\%([a-z_]\w*\|-\=\d\+\)\%([+-]\d\+\)\='" contained display
+syntax match   typescriptRegexpSpecial	"\\g<\%([a-z_]\w*\|-\=\d\+\)>" contained display
+syntax match   typescriptRegexpSpecial	"\\g'\%([a-z_]\w*\|-\=\d\+\)'" contained display
+
+syntax cluster typescriptRegexpSpecial	      contains=typescriptRegexpSpecial,typescriptRegexpEscape,typescriptRegexpBrackets,typescriptRegexpCharClass,typescriptRegexpDot,typescriptRegexpQuantifier,typescriptRegexpAnchor,typescriptRegexpParens
 
 syntax cluster typescriptEventTypes            contains=typescriptEventString,typescriptTemplate,typescriptNumber,typescriptBoolean,typescriptNull
 syntax cluster typescriptOps                   contains=typescriptOpSymbols,typescriptLogicSymbols,typescriptOperator
 syntax region  typescriptParenExp              matchgroup=typescriptParens start=/(/ end=/)/ contains=@typescriptComments,@typescriptExpression nextgroup=@typescriptSymbols skipwhite skipempty
-syntax cluster typescriptExpression            contains=typescriptArrowFuncDef,typescriptParenExp,@typescriptValue,typescriptObjectLiteral,typescriptFuncKeyword,typescriptIdentifierName,typescriptRegexpString,@typescriptTypes,@typescriptOps,typescriptGlobal,jsxRegion,typescriptAsyncFuncKeyword,typescriptTypeCast
-syntax cluster typescriptEventExpression       contains=typescriptArrowFuncDef,typescriptParenExp,@typescriptValue,typescriptObjectLiteral,typescriptFuncKeyword,typescriptIdentifierName,typescriptRegexpString,@typescriptEventTypes,@typescriptOps,typescriptGlobal,jsxRegion
+syntax cluster typescriptExpression            contains=typescriptArrowFuncDef,typescriptParenExp,@typescriptValue,typescriptObjectLiteral,typescriptFuncKeyword,typescriptIdentifierName,typescriptRegexp,@typescriptTypes,@typescriptOps,typescriptGlobal,jsxRegion,typescriptAsyncFuncKeyword,typescriptTypeCast
+syntax cluster typescriptEventExpression       contains=typescriptArrowFuncDef,typescriptParenExp,@typescriptValue,typescriptObjectLiteral,typescriptFuncKeyword,typescriptIdentifierName,typescriptRegexp,@typescriptEventTypes,@typescriptOps,typescriptGlobal,jsxRegion
 
 syntax region  typescriptLoopParen             contained matchgroup=typescriptParens start=/(/ end=/)/ contains=typescriptVariable,typescriptForOperator,typescriptEndColons,@typescriptExpression nextgroup=typescriptBlock skipwhite skipempty
 syntax region  typescriptConditionalParen             contained matchgroup=typescriptParens start=/(/ end=/)/ contains=@typescriptExpression nextgroup=typescriptBlock skipwhite skipempty
@@ -231,13 +252,22 @@ if exists("did_typescript_hilink")
   HiLink typescriptDocNamedParamType    Type
   HiLink typescriptDocParamName         Type
   HiLink typescriptDocParamType         Type
+  HiLink typescriptDelimiter            Delimiter
   HiLink typescriptString               String
+  HiLink typescriptStringDelimiter      typescriptDelimiter
   HiLink typescriptTemplate             String
   HiLink typescriptEventString          String
   HiLink typescriptASCII                Special
   HiLink typescriptTemplateSB           Label
   HiLink typescriptTemplateTag          Identifier
-  HiLink typescriptRegexpString         String
+  HiLink typescriptRegexpDelimiter      typescriptDelimiter
+  HiLink typescriptRegexpEscape         typescriptRegexpSpecial
+  HiLink typescriptRegexpQuantifier     typescriptRegexpSpecial
+  HiLink typescriptRegexpAnchor         typescriptRegexpSpecial
+  HiLink typescriptRegexpDot            typescriptRegexpCharClass
+  HiLink typescriptRegexpCharClass      typescriptRegexpSpecial
+  HiLink typescriptRegexpSpecial        Special
+  HiLink typescriptRegexp               typescriptString
   HiLink typescriptGlobal               Constant
   HiLink typescriptCharacter            Character
   HiLink typescriptPrototype            Type
@@ -295,6 +325,10 @@ if exists("did_typescript_hilink")
   HiLink typescriptInterfaceKeyword     Keyword
   HiLink typescriptInterfaceExtends     Keyword
   HiLink typescriptInterfaceName        Function
+  HiLink typescriptAliasName            typescriptInterfaceName
+  HiLink typescriptAliasExtends         typescriptInterfaceExtends
+  HiLink typescriptAliasTypeParameter   typescriptInterfaceTypeParameter
+  HiLink typescriptAliasHeritage        typescriptInterfaceHeritage
 
   HiLink shellbang                      Comment
 

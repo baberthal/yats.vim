@@ -8,14 +8,12 @@ syntax region  typescriptTemplateSubstitution matchgroup=typescriptTemplateSB
   \ contains=@typescriptExpression
   \ contained
 
-syntax region  typescriptString
-  \ start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/
-  \ nextgroup=@typescriptSymbols
-  \ skipwhite skipempty
+syntax region  typescriptString matchgroup=typescriptStringDelimiter start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/ nextgroup=@typescriptSymbols skipwhite skipempty extend
 
 syntax region  typescriptTemplate matchgroup=typescriptTemplateTag
   \ start=/\k*`/  skip=/\\\\\|\\`\|\n/  end=/`\|$/
   \ contains=typescriptTemplateSubstitution
+  \ matchgroup=typescriptStringDelimiter
   \ nextgroup=@typescriptSymbols
   \ skipwhite skipempty
 
