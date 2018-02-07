@@ -10,34 +10,17 @@
 "               IRC Channel in Freenode)
 
 
-" if exists("b:yats_loaded")
-  " finish
-" else
-  " let b:yats_loaded = 1
-" endif
 if !exists("main_syntax")
-  if version < 600
-    syntax clear
-  elseif exists("b:current_syntax")
+  if exists("b:current_syntax")
     finish
   endif
   let main_syntax = 'typescript'
 endif
 
 " Define the default highlighting.
-" For version 5.7 and earlier: only when not done already
 " For version 5.8 and later: only when an item doesn't have highlighting yet
-if version >= 508 || !exists("did_typescript_syn_inits")
-  let did_typescript_hilink = 1
-  if version < 508
-    let did_typescript_syn_inits = 1
-    command -nargs=+ HiLink hi link <args>
-  else
-    command -nargs=+ HiLink hi def link <args>
-  endif
-else
-  finish
-endif
+let did_typescript_hilink = 1
+command -nargs=+ HiLink hi def link <args>
 
 "Dollar sign is permitted anywhere in an identifier
 setlocal iskeyword-=$
@@ -48,126 +31,30 @@ endif
 
 syntax sync fromstart
 
-" load doc first because they are case insensitive
-runtime syntax/basic/doc.vim
-
-if main_syntax == "typescript"
-  syntax sync clear
-  syntax sync ccomment typescriptComment minlines=200
-endif
-
-syntax case match
-
 " lowest priority on least used feature
-syntax match   typescriptLabel                 /\v(^\s*|;)[a-zA-Z_$]\k*\_s*:/he=e-1 contains=typescriptReserved nextgroup=@typescriptValue,@typescriptStatement skipwhite skipempty
+syntax match   typescriptLabel                /[a-zA-Z_$]\k*:/he=e-1 contains=typescriptReserved nextgroup=@typescriptStatement skipwhite skipempty
+" syntax region  typescriptBlock                 matchgroup=typescriptBraces start=/\([\^:]\s\*\)\=\zs{/ end=/}/ contains=@htmlJavaScript fold
+syntax region  typescriptBlock                 matchgroup=typescriptBraces start=/{/ end=/}/ contains=@typescriptStatement,@typescriptComments fold
 
+runtime syntax/basic/identifiers.vim
 runtime syntax/basic/literal.vim
+runtime syntax/basic/object.vim
 
-syntax match typescriptOptionalMark /?/ contained
-syntax match typescriptRestOrSpread /\.\.\./ contained
-syntax match typescriptObjectSpread /\.\.\./ contained containedin=typescriptObjectLiteral nextgroup=@typescriptExpression
-
-syntax match   typescriptIdentifierName        /\<[^=<>!?+\-*\/%|&,;:. ~@#`"'\[\]\(\)\{\}\^0-9][^=<>!?+\-*\/%|&,;:. ~@#`"'\[\]\(\)\{\}\^]*/ nextgroup=typescriptDotNotation,typescriptArgumentList,typescriptComputedProperty contains=@_semantic skipnl skipwhite
-syntax region   typescriptIdentifierName        start=/\<[^=<>!?+\-*\/%|&,;:. ~@#`"'\[\]\(\)\{\}\^0-9][^=<>!?+\-*\/%|&,;:. ~@#`"'\[\]\(\)\{\}\^]*</ end=/>\ze(/ nextgroup=typescriptDotNotation,typescriptArgumentList,typescriptComputedProperty contains=@_semantic,typescriptTypeArguments oneline skipnl skipwhite
-
-"Block VariableStatement EmptyStatement ExpressionStatement IfStatement IterationStatement ContinueStatement BreakStatement ReturnStatement WithStatement LabelledStatement SwitchStatement ThrowStatement TryStatement DebuggerStatement
-
-syntax cluster typescriptStatement             contains=typescriptBlock,typescriptVariable,@typescriptExpression,typescriptConditional,typescriptRepeat,typescriptBranch,typescriptLabel,typescriptStatementKeyword,typescriptTry,typescriptDebugger
-
-
-syntax cluster typescriptTypes                 contains=typescriptString,typescriptTemplate,typescriptRegexp,typescriptNumber,typescriptBoolean,typescriptNull,typescriptArray
-syntax cluster typescriptValue                 contains=@typescriptTypes,@typescriptExpression,typescriptFuncKeyword,typescriptObjectLiteral,typescriptIdentifier,typescriptIdentifierName,typescriptOperator,@typescriptSymbols
-
-syntax match   typescriptObjectLabel           contained /\(^\|,\|{\)\@<=\s*\zs\k\+\_s*:/he=e-1 nextgroup=@typescriptValue,@typescriptStatement skipwhite skipempty
-" syntax match   typescriptPropertyName          contained /"[^"]\+"\s*:/he=e-1 nextgroup=@typescriptValue skipwhite skipempty
-" syntax match   typescriptPropertyName          contained /'[^']\+'\s*:/he=e-1 nextgroup=@typescriptValue skipwhite skipempty
-syntax region  typescriptPropertyName   contained start=/\(^\|,\|{\)\@<=\s*\zs\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\_s*:\|$/he=e-1 nextgroup=@typescriptValue skipwhite skipempty
-syntax region  typescriptPropertyName    contained start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\ze(/ nextgroup=typescriptFuncArg skipwhite skipempty oneline
-syntax region  typescriptComputedPropertyName  contained matchgroup=typescriptPropertyName start=/\(^\|,\|{\)\@<=\s*\zs\[/rs=s+1 end=/]\_s*:/he=e-1 contains=@typescriptExpression nextgroup=@typescriptValue skipwhite skipempty
-syntax region  typescriptComputedProperty      contained matchgroup=typescriptProperty start=/\(^\|,\|{\)\@<=\s*\zs\[/rs=s+1 end=/]/he=e-1 contains=@typescriptExpression nextgroup=@typescriptValue skipwhite skipempty
-" Value for object, statement for label statement
-
-syntax cluster typescriptStrings               contains=typescriptProp,typescriptString,typescriptTemplate,@typescriptComments,typescriptDocComment,typescriptRegexp,typescriptPropertyName
-
-syntax match   typescriptOpSymbols             /[^+\-*/%\^=!<>&|?:]\@<=\(<\|>\|<=\|>=\|==\|!=\|===\|!==\|+\|*\|%\|++\|--\|<<\|>>\|>>>\|&\||\|^\|!\|\~\|&&\|||\|?\|=\|+=\|-=\|*=\|%=\|<<=\|>>=\|>>>=\|&=\||=\|^=\|\/\|\/=\)\ze\_[^+\-*/%\^=!<>&|?:]/ nextgroup=@typescriptExpression skipwhite skipempty
-syntax match   typescriptOpSymbols             /[^+\-*/%\^=!<>&|?:]\@<=\(++\|--\)$/
-syntax match   typescriptOpSymbols             /[^+\-*/%\^=!<>&|?:]\@<=\(:\)\ze\_[^+\-*/%\^=!<>&|?:]/ nextgroup=@typescriptStatement,typescriptCase skipwhite skipempty
+runtime syntax/basic/symbols.vim
 runtime syntax/basic/reserved.vim
-
 runtime syntax/basic/keyword.vim
+runtime syntax/basic/doc.vim
 runtime syntax/basic/type.vim
 
-syntax match   typescriptProp                  contained /[a-zA-Z_$][a-zA-Z0-9_$]*!\?/ contains=@props,@_semantic transparent nextgroup=@typescriptSymbols,typescriptDotNotation skipwhite skipempty
-syntax match   typescriptProp                  contained /[a-zA-Z_$]\w*\ze(/ nextgroup=typescriptArgumentList contains=@_semantic,@props oneline
-syntax region  typescriptProp                  contained start=/[a-zA-Z_$][a-zA-Z0-9_$]*</ end=/>\ze(/ nextgroup=typescriptArgumentList contains=@_semantic,@props,typescriptTypeArguments oneline
-syntax match   typescriptMethod                contained /[a-zA-Z_$][a-zA-Z0-9_$]*@!\?\ze(/ contains=@props transparent nextgroup=typescriptArgumentList
-syntax match   typescriptDotNotation           /\./ nextgroup=typescriptProp,typescriptMethod contained skipnl
-syntax match   typescriptDotStyleNotation      /\.style\./ nextgroup=typescriptDOMStyle transparent
+" extension
+runtime syntax/yats.vim
 
-runtime syntax/yats/typescript.vim
-runtime syntax/yats/es6-number.vim
-runtime syntax/yats/es6-string.vim
-runtime syntax/yats/es6-array.vim
-runtime syntax/yats/es6-object.vim
-runtime syntax/yats/es6-symbol.vim
-runtime syntax/yats/es6-function.vim
-runtime syntax/yats/es6-math.vim
-runtime syntax/yats/es6-date.vim
-runtime syntax/yats/es6-json.vim
-runtime syntax/yats/es6-regexp.vim
-runtime syntax/yats/es6-map.vim
-runtime syntax/yats/es6-set.vim
-runtime syntax/yats/es6-proxy.vim
-runtime syntax/yats/es6-promise.vim
-runtime syntax/yats/ecma-402.vim
-runtime syntax/yats/node.vim
-runtime syntax/yats/web.vim
-runtime syntax/yats/web-window.vim
-runtime syntax/yats/web-navigator.vim
-runtime syntax/yats/web-location.vim
-runtime syntax/yats/web-history.vim
-runtime syntax/yats/web-console.vim
-runtime syntax/yats/web-xhr.vim
-runtime syntax/yats/web-blob.vim
-runtime syntax/yats/web-crypto.vim
-runtime syntax/yats/web-fetch.vim
-runtime syntax/yats/web-service-worker.vim
-runtime syntax/yats/dom-node.vim
-runtime syntax/yats/dom-elem.vim
-runtime syntax/yats/dom-document.vim
-runtime syntax/yats/dom-event.vim
-runtime syntax/yats/dom-storage.vim
-runtime syntax/yats/css.vim
 " patch
 runtime syntax/basic/patch.vim
-
-let typescript_props = 1
-
-runtime syntax/yats/event.vim
-syntax region  typescriptEventString           contained start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/ contains=typescriptASCII,@events
-
-"Import / Export
-syntax region  typescriptImportDef             start=/import/ end=/;\|['"])\?\s*$/ contains=typescriptImport,typescriptString,typescriptBlock keepend
-syntax keyword typescriptExport                from export module as
-syntax keyword typescriptImport                contained from as import export
-syntax match typescriptGlobExport              "\v\*\sfrom"hs=s+1
-
-syntax region  typescriptBlock                 matchgroup=typescriptBraces start=/\([\^:]\s\*\)\=\zs{/ end=/}/ contains=@htmlJavaScript fold
-
 runtime syntax/basic/method.vim
-
-syntax keyword typescriptAsyncFuncKeyword      async await nextgroup=typescriptFuncKeyword,typescriptArrowFuncDef skipwhite skipnl skipnl
-" syntax keyword typescriptFuncKeyword           function nextgroup=typescriptFuncName,typescriptFuncArg skipwhite
-syntax keyword typescriptFuncKeyword           function nextgroup=typescriptAsyncFunc,typescriptSyncFunc
-syntax match   typescriptSyncFunc              contained // nextgroup=typescriptFuncName,typescriptFuncArg skipwhite skipempty
-syntax match   typescriptAsyncFunc             contained /*/ nextgroup=typescriptFuncName,typescriptFuncArg skipwhite skipempty
-syntax match   typescriptFuncName              contained /[a-zA-Z_$]\k*/ nextgroup=typescriptFuncArg skipwhite
-syntax region   typescriptFuncArg              contained start=/<\|(/ end=/\%(:\s*\)\@<!\ze{\|;\|$/ contains=@typescriptCallSignature nextgroup=typescriptBlock skipwhite skipwhite skipempty
-syntax match   typescriptFuncComma             contained /,/
-
-
 runtime syntax/basic/class.vim
 runtime syntax/basic/forcomprehension.vim
+<<<<<<< HEAD
 
 
 syntax region  typescriptObjectLiteral         contained matchgroup=typescriptBraces start=/{/ end=/}/ contains=@typescriptComments,typescriptObjectLabel,typescriptPropertyName,typescriptMethodDef,typescriptComputedPropertyName,typescriptMethod,@typescriptValue fold
@@ -175,56 +62,8 @@ syntax region  typescriptObjectLiteral         contained matchgroup=typescriptBr
 " syntax match   typescriptBraces                /[\[\]]/
 " syntax match   typescriptParens                /[()]/
 " syntax match   typescriptOpSymbols             /[^+\-*/%\^=!<>&|?]\@<=\(<\|>\|<=\|>=\|==\|!=\|===\|!==\|+\|-\|*\|%\|++\|--\|<<\|>>\|>>>\|&\||\|^\|!\|\~\|&&\|||\|?\|=\|+=\|-=\|*=\|%=\|<<=\|>>=\|>>>=\|&=\||=\|^=\|\/\|\/=\)\ze\_[^+\-*/%\^=!<>&|?]/ nextgroup=@typescriptExpression skipwhite
-syntax match   typescriptEndColons             /[;,]/
-syntax match   typescriptLogicSymbols          /[^&|]\@<=\(&&\|||\)\ze\_[^&|]/ nextgroup=@typescriptExpression skipwhite skipempty
-syntax cluster typescriptSymbols               contains=typescriptOpSymbols,typescriptLogicSymbols
-
-" From vim runtime
-" <https://github.com/vim/vim/blob/master/runtime/syntax/javascript.vim#L48>
-" syntax region  typescriptRegexp          start=+/[^/*]+me=e-1 skip=+\\\\\|\\/+ end=+/[gimuy]\{0,5\}\s*$+ end=+/[gimuy]\{0,5\}\s*[;.,)\]}]+me=e-1 oneline
-syntax region  typescriptRegexp matchgroup=typescriptRegexpDelimiter start=+/\(/\|*\)\@!+ skip=+\\\\\|\\/+ end=+/[gimuy]*+ contains=@typescriptRegexpSpecial oneline
-
-" From vim-ruby, adapted for JS
-syntax region  typescriptRegexpParens	matchgroup=typescriptRegexpSpecial   start="(\(?:\|?<\=[=!]\|?>\|?<[a-z_]\w*>\|?[imx]*-[imx]*:\=\|\%(?#\)\@!\)" skip="\\)"  end=")"  contained transparent contains=@typescriptRegexpSpecial
-syntax region  typescriptRegexpBrackets	matchgroup=typescriptRegexpCharClass start="\[\^\="								  skip="\\\]" end="\]" contained transparent contains=typescriptStringEscape,typescriptRegexpEscape,typescriptRegexpCharClass oneline
-syntax match   typescriptRegexpCharClass	"\\[DdHhSsWw]"	       contained display
-syntax match   typescriptRegexpCharClass	"\[:\^\=\%(alnum\|alpha\|ascii\|blank\|cntrl\|digit\|graph\|lower\|print\|punct\|space\|upper\|xdigit\):\]" contained
-syntax match   typescriptRegexpEscape	"\\[].*?+^$|\\/(){}[]" contained
-syntax match   typescriptRegexpQuantifier	"[*?+][?+]\="	       contained display
-syntax match   typescriptRegexpQuantifier	"{\d\+\%(,\d*\)\=}?\=" contained display
-syntax match   typescriptRegexpAnchor	"[$^]\|\\[ABbGZz]"     contained display
-syntax match   typescriptRegexpDot	"\."		       contained display
-syntax match   typescriptRegexpSpecial	"|"		       contained display
-syntax match   typescriptRegexpSpecial	"\\[1-9]\d\=\d\@!"     contained display
-syntax match   typescriptRegexpSpecial	"\\k<\%([a-z_]\w*\|-\=\d\+\)\%([+-]\d\+\)\=>" contained display
-syntax match   typescriptRegexpSpecial	"\\k'\%([a-z_]\w*\|-\=\d\+\)\%([+-]\d\+\)\='" contained display
-syntax match   typescriptRegexpSpecial	"\\g<\%([a-z_]\w*\|-\=\d\+\)>" contained display
-syntax match   typescriptRegexpSpecial	"\\g'\%([a-z_]\w*\|-\=\d\+\)'" contained display
-
-syntax cluster typescriptRegexpSpecial	      contains=typescriptRegexpSpecial,typescriptRegexpEscape,typescriptRegexpBrackets,typescriptRegexpCharClass,typescriptRegexpDot,typescriptRegexpQuantifier,typescriptRegexpAnchor,typescriptRegexpParens
-
-syntax cluster typescriptEventTypes            contains=typescriptEventString,typescriptTemplate,typescriptNumber,typescriptBoolean,typescriptNull
-syntax cluster typescriptOps                   contains=typescriptOpSymbols,typescriptLogicSymbols,typescriptOperator
-syntax region  typescriptParenExp              matchgroup=typescriptParens start=/(/ end=/)/ contains=@typescriptComments,@typescriptExpression nextgroup=@typescriptSymbols skipwhite skipempty
-syntax cluster typescriptExpression            contains=typescriptArrowFuncDef,typescriptParenExp,@typescriptValue,typescriptObjectLiteral,typescriptFuncKeyword,typescriptIdentifierName,typescriptRegexp,@typescriptTypes,@typescriptOps,typescriptGlobal,jsxRegion,typescriptAsyncFuncKeyword,typescriptTypeCast
-syntax cluster typescriptEventExpression       contains=typescriptArrowFuncDef,typescriptParenExp,@typescriptValue,typescriptObjectLiteral,typescriptFuncKeyword,typescriptIdentifierName,typescriptRegexp,@typescriptEventTypes,@typescriptOps,typescriptGlobal,jsxRegion
-
-syntax region  typescriptLoopParen             contained matchgroup=typescriptParens start=/(/ end=/)/ contains=typescriptVariable,typescriptForOperator,typescriptEndColons,@typescriptExpression nextgroup=typescriptBlock skipwhite skipempty
-syntax region  typescriptConditionalParen             contained matchgroup=typescriptParens start=/(/ end=/)/ contains=@typescriptExpression nextgroup=typescriptBlock skipwhite skipempty
-
-" syntax match   typescriptFuncCall              contained /[a-zA-Z]\k*\ze(/ nextgroup=typescriptArgumentList
-syntax region  typescriptArgumentList           contained matchgroup=typescriptParens start=/(/ end=/)/ contains=@typescriptExpression,@typescriptComments nextgroup=typescriptOpSymbols,typescriptDotNotation skipwhite skipempty skipnl
-syntax cluster typescriptSymbols               contains=typescriptOpSymbols,typescriptLogicSymbols
-syntax region  typescriptEventFuncCallArg      contained matchgroup=typescriptParens start=/(/ end=/)/ contains=@typescriptEventExpression
-
-syntax match   typescriptArrowFuncDef          contained /([^)]*)\_s*=>/ contains=typescriptArrowFuncArg,typescriptArrowFunc nextgroup=@typescriptExpression skipwhite skipempty
-syntax match   typescriptArrowFuncDef          contained /[a-zA-Z_$]\k*\_s*=>/ contains=typescriptArrowFuncArg,typescriptArrowFunc nextgroup=@typescriptExpression skipwhite skipempty
-syntax match   typescriptArrowFuncDef          contained /([^)]*)\_s*=>\ze\s*{/ contains=typescriptArrowFuncArg,typescriptArrowFunc nextgroup=typescriptBlock skipwhite skipempty
-syntax match   typescriptArrowFuncDef          contained /[a-zA-Z_$]\k*\_s*=>\ze\s*{/ contains=typescriptArrowFuncArg,typescriptArrowFunc nextgroup=typescriptBlock skipwhite skipempty
-syntax match   typescriptArrowFunc             /=>/
-syntax match   typescriptArrowFuncArg          contained /[a-zA-Z_$]\k*/
-syntax region  typescriptArrowFuncArg          contained start=/<\|(/ end=/\ze=>/ contains=@typescriptCallSignature
-
+runtime syntax/basic/cluster.vim
+runtime syntax/basic/function.vim
 runtime syntax/basic/ambient.vim
 runtime syntax/basic/decorator.vim
 
@@ -232,7 +71,7 @@ if exists("did_typescript_hilink")
   HiLink typescriptReserved             Error
 
   HiLink typescriptEndColons            Exception
-  HiLink typescriptOpSymbols            Normal
+  HiLink typescriptSymbols              Normal
   HiLink typescriptLogicSymbols         Boolean
   HiLink typescriptBraces               Function
   HiLink typescriptParens               Normal
@@ -241,8 +80,6 @@ if exists("did_typescript_hilink")
   HiLink typescriptDocComment           Comment
   HiLink typescriptCommentTodo          Todo
   HiLink typescriptRef                  Include
-  HiLink typescriptRefS                 String
-  HiLink typescriptRefD                 String
   HiLink typescriptDocNotation          SpecialComment
   HiLink typescriptDocTags              SpecialComment
   HiLink typescriptDocNGParam           typescriptDocParam
@@ -287,10 +124,12 @@ if exists("did_typescript_hilink")
   HiLink typescriptStatementKeyword     Statement
   HiLink typescriptMessage              Keyword
   HiLink typescriptOperator             Identifier
+  HiLink typescriptKeywordOp            Identifier
   HiLink typescriptCastKeyword          Special
   HiLink typescriptType                 Type
   HiLink typescriptNull                 Boolean
   HiLink typescriptNumber               Number
+  HiLink typescriptExponent             Number
   HiLink typescriptBoolean              Boolean
   HiLink typescriptObjectLabel          typescriptLabel
   HiLink typescriptLabel                Constant
@@ -304,6 +143,7 @@ if exists("did_typescript_hilink")
   HiLink typescriptExceptions           PreProc
 
   HiLink typescriptMethodName           Function
+  HiLink typescriptMembers              Function
   HiLink typescriptMethodAccessor       Operator
 
   HiLink typescriptAsyncFuncKeyword     Keyword
@@ -318,12 +158,11 @@ if exists("did_typescript_hilink")
 
   HiLink typescriptClassKeyword         Keyword
   HiLink typescriptClassExtends         Keyword
-  HiLink typescriptClassName            Function
+  " HiLink typescriptClassName            Function
   HiLink typescriptAbstract             Special
-  HiLink typescriptClassHeritage        Function
-  HiLink typescriptInterfaceHeritage    Function
+  " HiLink typescriptClassHeritage        Function
+  " HiLink typescriptInterfaceHeritage    Function
   HiLink typescriptClassStatic          StorageClass
-  HiLink typescriptClassSuper           keyword
   HiLink typescriptInterfaceKeyword     Keyword
   HiLink typescriptInterfaceExtends     Keyword
   HiLink typescriptInterfaceName        Function
@@ -347,10 +186,10 @@ if exists("did_typescript_hilink")
   HiLink typescriptMappedIn              Special
   HiLink typescriptCall                  PreProc
   HiLink typescriptConstructSignature    Identifier
-  HiLink typescriptPropertySignature     Statement
-  HiLink typescriptMethodSignature       Statement
+  HiLink typescriptPropertySignature     Label
+  HiLink typescriptMethodSignature       Label
   HiLink typescriptAliasDeclaration      Identifier
-  HiLink typescriptAliasKeyword          Keyword
+  HiLink typescriptAliasKeyword          TypeDef
   HiLink typescriptUserDefinedKeyword    Keyword
   HiLink typescriptTypeReference         Identifier
   HiLink typescriptAmbientModifier       Keyword
@@ -369,4 +208,3 @@ let b:current_syntax = "typescript"
 if main_syntax == 'typescript'
   unlet main_syntax
 endif
-

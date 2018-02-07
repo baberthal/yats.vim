@@ -1,4 +1,6 @@
 " Types
+syntax match typescriptOptionalMark /?/ contained
+
 syntax region typescriptTypeParameters matchgroup=typescriptTypeBrackets
   \ start=/</ end=/>/ skip=/\s*,\s*/
   \ contains=typescriptTypeParameter
@@ -12,16 +14,17 @@ syntax keyword typescriptConstraint extends
   \ nextgroup=@typescriptType
   \ contained skipwhite skipnl
 
+"><
 syntax region typescriptTypeArguments matchgroup=typescriptTypeBrackets
-  \ start=/</ end=/>/ skip=/\s*,\s*/
+  \ start=/\></ end=/>/ skip=/\s*,\s*/
   \ contains=@typescriptType
-  \ nextgroup=typescriptUnionOrArrayType,typescriptArgumentList
+  \ nextgroup=typescriptUnionOrArrayType,typescriptFuncCallArg
   \ contained skipwhite
 
 syntax region typescriptTypeCast matchgroup=typescriptTypeBrackets
   \ start=/< \@!/ end=/>/ skip=/\s*,\s*/
   \ contains=@typescriptType
-  \ nextgroup=@typescriptExpression
+  \ nextgroup=@typescriptValue
   \ contained skipwhite oneline
 
 syntax cluster typescriptType contains=
@@ -58,7 +61,7 @@ syntax match typescriptTypeReference /[A-Za-z_$]\w*\(\.[A-Za-z_$]\w*\)*/
 
 syntax region typescriptObjectType matchgroup=typescriptBraces
   \ start=/{/ end=/}/
-  \ contains=@typescriptTypeMember,@typescriptComments
+  \ contains=@typescriptTypeMember,@typescriptComments,typescriptAccessibilityModifier
   \ nextgroup=typescriptUnionOrArrayType
   \ contained skipwhite fold
 
@@ -67,8 +70,9 @@ syntax cluster typescriptTypeMember contains=
   \ @typescriptCallSignature,
   \ typescriptConstructSignature,
   \ typescriptIndexSignature,
-  \ typescriptMethodSignature,
+  \ typescriptMembers,
   \ typescripEndColons
+  " \ typescriptMethodSignature,
 
 syntax region typescriptTupleType matchgroup=typescriptBraces
   \ start=/\[/ end=/\]/
@@ -123,7 +127,7 @@ syntax region typescriptPropertySignature
   \ containedin=typescriptTypeMember
   \ contained skipwhite oneline
 
-syntax match typescriptMethodSignature /[A-Za-z_$]\w*\ze<\|(/
+syntax match typescriptMethodSignature /\v[A-Za-z_$]\w*\??\_s*\ze(\<|\()/
   \ nextgroup=@typescriptCallSignature
   \ containedin=typescriptTypeMember
   \ contained skipwhite oneline
@@ -133,7 +137,6 @@ syntax region typescriptGenericCall matchgroup=typescriptTypeBrackets
   \ start=/</ end=/>/ skip=/\s*,\s*/
   \ contains=typescriptTypeParameter
   \ nextgroup=typescriptCall
-  \ containedin=typescriptCallSignature
   \ contained skipwhite skipnl
 syntax region typescriptCall matchgroup=typescriptParens
   \ start=/(/ end=/)/
@@ -156,7 +159,7 @@ syntax cluster typescriptParameterList contains=
 syntax keyword typescriptAccessibilityModifier public private protected readonly contained
 
 syntax match typescriptDefaultParam /=/
-  \ nextgroup=@typescriptExpression
+  \ nextgroup=@typescriptValue
   \ contained skipwhite
 
 syntax keyword typescriptConstructSignature new
@@ -165,7 +168,7 @@ syntax keyword typescriptConstructSignature new
 
 syntax region typescriptIndexSignature matchgroup=typescriptBraces
   \ start=/\[/ end=/\]/
-  \ contains=typescriptTypeAnnotation,typescriptMappedIn
+  \ contains=typescriptTypeAnnotation,typescriptMappedIn,typescriptString
   \ nextgroup=typescriptTypeAnnotation
   \ contained skipwhite oneline
 
@@ -177,7 +180,7 @@ syntax keyword typescriptAliasKeyword type
   \ nextgroup=typescriptAliasDeclaration
   \ skipwhite skipnl skipempty
 
-syntax region typescriptAliasDeclaration matchgroup=typescriptOpSymbols
+syntax region typescriptAliasDeclaration
   \ start=/ / end=/=/
   \ nextgroup=@typescriptType
   \ contains=typescriptConstraint

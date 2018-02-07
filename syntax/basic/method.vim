@@ -1,18 +1,18 @@
 syntax region  typescriptMethodDef  start=/\v(set|get)\_s+[a-zA-Z_$]\k*\_s*(\(|\<)/ end=/\ze{/
   \ contains=typescriptMethodAccessor,typescriptMethodName
   \ containedin=typescriptClassBlock,typescriptObjectLiteral
-  \ nextgroup=typescriptMethodBlock
+  \ nextgroup=typescriptBlock
   \ skipwhite contained
 
 syntax region  typescriptMethodDef  start=/\v[a-zA-Z_$]\k*\_s*(\(|\<)/ end=/\ze{/
   \ contains=typescriptMethodName,typescriptConstructor
   \ containedin=typescriptClassBlock,typescriptObjectLiteral
-  \ nextgroup=typescriptMethodBlock
+  \ nextgroup=typescriptBlock
   \ skipwhite contained
 
 syntax keyword typescriptMethodAccessor        contained get set
 syntax keyword typescriptConstructor           contained constructor
-  \ nextgroup=typescriptMethodArgs
+  \ nextgroup=typescriptTypeAnnotation,@typescriptCallSignature
   \ skipwhite skipempty
 
 syntax match   typescriptMethodName            contained /[a-zA-Z_$]\k*/
@@ -29,8 +29,19 @@ syntax region  typescriptMethodArgs            contained start=/(\|</ end=/\%(:\
   \ contains=@typescriptCallSignature
   \ skipwhite
 
-syntax region  typescriptMethodBlock matchgroup=typescriptBraces
-  \ start=/\([\^:]\s\*\)\=\zs{/ end=/}/
-  \ contains=@htmlJavaScript,typescriptClassSuper
-  \ containedin=typescriptClassBlock,typescriptObjectLiteral
-  \ contained fold
+syntax match typescriptMembers /\v[A-Za-z_$]\k*(\?|\!)?/
+  \ nextgroup=typescriptTypeAnnotation,@typescriptCallSignature
+  \ contained skipwhite
+
+" syntax match typescriptMemberVariableDeclaration /\v[A-Za-z_$]\k*(\?|\!)?\s*\ze:/
+"   \ nextgroup=typescriptTypeAnnotation
+"   \ contained skipwhite
+
+" syntax match typescriptMemberVariableDeclaration /[A-Za-z_$]\k*\s*=/
+"   \ nextgroup=@typescriptValue
+"   \ contained skipwhite skipnl
+
+" syntax match typescriptMemberVariableDeclaration /[A-Za-z_$]\k*:.\+=>\@!/
+"   \ contains=typescriptTypeAnnotation
+"   \ nextgroup=@typescriptValue
+"   \ contained skipwhite skipnl
