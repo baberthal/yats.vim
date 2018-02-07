@@ -87,7 +87,17 @@ if exists("did_typescript_hilink")
   HiLink typescriptEventString          String
   HiLink typescriptASCII                Special
   HiLink typescriptTemplateSB           Label
-  HiLink typescriptRegexpString         String
+
+  HiLink typescriptRegexpDelimiter      typescriptDelimiter
+  HiLink typescriptRegexpEscape         typescriptRegexpSpecial
+  HiLink typescriptRegexpQuantifier     typescriptRegexpSpecial
+  HiLink typescriptRegexpAnchor         typescriptRegexpSpecial
+  HiLink typescriptRegexpDot            typescriptRegexpCharClass
+  HiLink typescriptRegexpCharClass      typescriptRegexpSpecial
+  HiLink typescriptRegexpSpecial        Special
+  HiLink typescriptRegexp               typescriptString
+
+  " HiLink typescriptRegexpString         String
   HiLink typescriptGlobal               Constant
   HiLink typescriptCharacter            Character
   HiLink typescriptPrototype            Type

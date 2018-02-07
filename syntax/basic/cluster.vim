@@ -11,3 +11,6 @@ syntax cluster typescriptExpression
 syntax cluster typescriptValue
   \ contains=@typescriptExpression,typescriptObjectLiteral
 syntax cluster typescriptEventExpression       contains=typescriptArrowFuncDef,typescriptParenExp,@typescriptValue,typescriptRegexpString,@typescriptEventTypes,typescriptOperator,typescriptGlobal,jsxRegion
+
+syntax cluster typescriptRegexpSpecial	      contains=typescriptRegexpSpecial,typescriptRegexpEscape,typescriptRegexpBrackets,typescriptRegexpCharClass,typescriptRegexpDot,typescriptRegexpQuantifier,typescriptRegexpAnchor,typescriptRegexpParens
+
