@@ -8,9 +8,21 @@ syntax cluster typescriptStatement
   \ typescriptTry,typescriptExceptions,typescriptDebugger,
   \ typescriptExport,typescriptInterfaceKeyword,typescriptEnum,typescriptModule
 
-syntax cluster typescriptPrimitive  contains=typescriptString,typescriptTemplate,typescriptRegexpString,typescriptNumber,typescriptBoolean,typescriptNull,typescriptArray
+syntax cluster typescriptPrimitive
+  \ contains=typescriptString,
+  \ typescriptTemplate,
+  \ typescriptRegexpString,
+  \ typescriptNumber,
+  \ typescriptBoolean,
+  \ typescriptNull,
+  \ typescriptArray
 
-syntax cluster typescriptEventTypes            contains=typescriptEventString,typescriptTemplate,typescriptNumber,typescriptBoolean,typescriptNull
+syntax cluster typescriptEventTypes
+  \ contains=typescriptEventString,
+  \ typescriptTemplate,
+  \ typescriptNumber,
+  \ typescriptBoolean,
+  \ typescriptNull
 
 " top level expression: no arrow func
 " also no func keyword. funcKeyword is contained in statement
@@ -34,4 +46,18 @@ syntax cluster typescriptExpression
 syntax cluster typescriptValue
   \ contains=@typescriptExpression,typescriptObjectLiteral
 
-syntax cluster typescriptEventExpression       contains=typescriptArrowFuncDef,typescriptParenExp,@typescriptValue,typescriptRegexpString,@typescriptEventTypes,typescriptOperator,typescriptGlobal,jsxRegion
+syntax cluster typescriptEventExpression
+  \ contains=typescriptArrowFuncDef,
+  \ typescriptParenExp,
+  \ @typescriptValue,
+  \ typescriptRegexpString,
+  \ @typescriptEventTypes,
+  \ typescriptOperator,
+  \ typescriptGlobal,
+  \ jsxRegion
+
+syntax cluster typescriptRegexpSpecial
+      \ contains=typescriptRegexpSpecial,typescriptRegexpEscape,
+      \ typescriptRegexpBrackets,typescriptRegexpCharClass,
+      \ typescriptRegexpDot,typescriptRegexpQuantifier,
+      \ typescriptRegexpAnchor,typescriptRegexpParens

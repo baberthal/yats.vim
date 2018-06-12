@@ -43,6 +43,8 @@ runtime syntax/basic/decorator.vim
 if exists("did_typescript_hilink")
   HiLink typescriptReserved             Error
 
+  HiLink typescriptDelimiter            Delimiter
+
   HiLink typescriptEndColons            Exception
   HiLink typescriptSymbols              Normal
   HiLink typescriptBraces               Function
@@ -64,11 +66,23 @@ if exists("did_typescript_hilink")
   HiLink typescriptString               String
   HiLink typescriptStringLiteralType    String
   HiLink typescriptStringMember         String
+  HiLink typescriptStringDelimiter      typescriptDelimiter
   HiLink typescriptTemplate             String
   HiLink typescriptEventString          String
   HiLink typescriptASCII                Special
   HiLink typescriptTemplateSB           Label
-  HiLink typescriptRegexpString         String
+  HiLink typescriptRegexpString         typescriptString
+  HiLink typescriptRegexpDelimiter      typescriptDelimiter
+  HiLink typescriptRegexpEscape         typescriptRegexpSpecial
+  HiLink typescriptRegexpQuantifier     typescriptRegexpSpecial
+  HiLink typescriptRegexpAnchor         typescriptRegexpSpecial
+  HiLink typescriptRegexpDot            typescriptRegexpCharClass
+  HiLink typescriptRegexpCharClass      typescriptRegexpSpecial
+  HiLink typescriptRegexpSpecial        Special
+
+  " HiLink typescriptRegexpString         String
+
+
   HiLink typescriptGlobal               Constant
   HiLink typescriptPrototype            Type
   HiLink typescriptConditional          Conditional
