@@ -52,6 +52,7 @@ syntax cluster typescriptPrimaryType contains=
   \ typescriptStringLiteralType
 
 syntax region  typescriptStringLiteralType contained
+  \ matchgroup=typescriptStringDelimiter
   \ start=/\z(["']\)/  skip=/\\\\\|\\\z1\|\\\n/  end=/\z1\|$/
   \ nextgroup=typescriptUnion
   \ skipwhite skipempty
@@ -62,7 +63,7 @@ syntax region typescriptParenthesizedType matchgroup=typescriptParens
   \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite skipempty
 
-syntax keyword typescriptPredefinedType any number boolean string void never undefined null object
+syntax keyword typescriptPredefinedType any number boolean string void never undefined null object symbol
   \ nextgroup=@typescriptTypeOperator
   \ contained skipwhite skipempty
 

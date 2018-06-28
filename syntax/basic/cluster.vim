@@ -34,7 +34,8 @@ syntax cluster typescriptTopExpression
   \ typescriptOperator,typescriptUnaryOp,
   \ typescriptParenExp,typescriptRegexpString,
   \ typescriptGlobal,typescriptAsyncFuncKeyword,
-  \ typescriptClassKeyword,typescriptTypeCast
+  \ typescriptClassKeyword,typescriptTypeCast,
+  \ typescriptKeywordOp
 
 " no object literal, used in type cast and arrow func
 " TODO: change func keyword to funcImpl
