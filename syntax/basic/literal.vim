@@ -19,9 +19,10 @@ syntax region  typescriptString
 " syntax region  typescriptRegexpString          start=+/[^/*]+me=e-1 skip=+\\\\\|\\/+ end=+/[gimuy]\{0,5\}\s*$+ end=+/[gimuy]\{0,5\}\s*[;.,)\]}]+me=e-1 nextgroup=typescriptDotNotation oneline
 syntax region  typescriptRegexpString
       \ matchgroup=typescriptRegexpDelimiter
-      \ start=+/[^/*]+me=e-1
-      \ skip=+\\\\\|\\/+ end=+/[gimuy]\{0,5\}\s*$+
-      \ end=+/[gimuy]\{0,5\}\s*[;.,)\]}]+me=e-1
+      \ start=+/\(/\|*\)\@!+
+      \ skip=+\\\\\|\\/+
+      \ end=+/[gimuy]*+
+      \ contains=@typescriptRegexpSpecial
       \ nextgroup=typescriptDotNotation
       \ oneline
 
