@@ -28,7 +28,7 @@ syntax match   typescriptClassHeritage         contained /\v(\k|\.|\(|\))+/
 syntax region typescriptClassTypeArguments matchgroup=typescriptTypeBrackets
   \ start=/</ end=/>/
   \ contains=@typescriptType
-  \ nextgroup=typescriptClassBlock,typescriptMixinComma
+  \ nextgroup=typescriptClassBlock,typescriptMixinComma,typescriptClassExtends
   \ contained skipwhite skipnl
 
 syntax match typescriptMixinComma /,/ contained nextgroup=typescriptClassHeritage skipwhite skipnl
